@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Administrativo - Barbearia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body class="bg-dark d-flex flex-column min-vh-100">
+
+    <header class="header">
+        <div class="header__inner">
+            <h1 class="header__logo">Barbearia</h1>
+            <nav class="header__nav">
+                <a href="{{ url_for('logout') }}" class="header__admin-link">Sair</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container mt-5 flex-grow-1 text-white">
+        <h2 class="mb-4 text-center">Painel Administrativo</h2>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-messages mb-3">
+            {% for category, message in messages %}
+            <div class="alert alert-{{ category }}" role="alert">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="row">
+            <!-- Gerenciamento de Horários -->
+            <div class="col-md-6 mb-4">
+                <div class="card bg-light text-dark h-100">
+                    <div class="card-body">
+                        <h3 class="card-title">Gerenciar Horários de Atendimento</h3>
+                        <p class="card-text">Selecione os horários em que a barbearia estará aberta para agendamentos.</p>
+                        <form method="POST" action="{{ url_for('admin') }}">
+                            <input type="hidden" name="action" value="update_horarios">
+                            <div class="agenda-admin-grid mb-3">
+                                {% for h in horarios_disponiveis %}
+                                <label class="slot-admin">
+                                    <input type="checkbox" name="horarios" value="{{ h }}"
+                                        {% if h in horarios_configurados %}checked{% endif %}>
+                                    <span>{{ h }}</span>
+                                </label>
+                                {% endfor %}
+                            </div>
+                            <button type="submit" class="btn btn-warning w-100">Salvar Horários</button>
+                        </form>
+
+                        <h4 class="mt-4">Horários Configurados (para exclusão)</h4>
+                        <ul class="list-group">
+                            {% for h_id, h_horario in horarios_configurados_com_id %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white">
+                                {{ h_horario }}
+                                <a href="{{ url_for('excluir_horario', id_horario=h_id) }}" class="btn btn-danger btn-sm">Excluir</a>
+                            </li>
+                            {% else %}
+                            <li class="list-group-item bg-dark text-white">Nenhum horário configurado.</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Gerenciamento de Agendamentos -->
+            <div class="col-md-6 mb-4">
+                <div class="card bg-light text-dark h-100">
+                    <div class="card-body">
+                        <h3 class="card-title">Agendamentos</h3>
+
+                        <form method="POST" action="{{ url_for('admin') }}" class="mb-3">
+                            <input type="hidden" name="action" value="filter_agendamentos">
+                            <div class="input-group">
+                                <input type="date" name="data_filtro" class="form-control" value="{{ data_filtro if data_filtro else '' }}">
+                                <button type="submit" class="btn btn-primary">Filtrar por Data</button>
+                                <a href="{{ url_for('admin') }}" class="btn btn-secondary">Limpar Filtro</a>
+                            </div>
+                        </form>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover text-dark">
+                                <thead>
+                                    <tr>
+                                        <th>Nome</th>
+                                        <th>Telefone</th>
+                                        <th>Data</th>
+                                        <th>Horário</th>
+                                        <th>Serviço</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for agendamento in agendamentos %}
+                                    <tr>
+                                        <td>{{ agendamento.nome }}</td>
+                                        <td>{{ agendamento.telefone }}</td>
+                                        <td>{{ agendamento.data }}</td>
+                                        <td>{{ agendamento.horario }}</td>
+                                        <td>{{ agendamento.servico }}</td>
+                                        <td>
+                                            <a href="{{ url_for('excluir_agendamento', id_agendamento=agendamento.id) }}" class="btn btn-danger btn-sm">Excluir</a>
+                                        </td>
+                                    </tr>
+                                    {% else %}
+                                    <tr>
+                                        <td colspan="6" class="text-center">Nenhum agendamento encontrado.</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informações Adicionais (Serviços e Dias da Semana) -->
+        <div class="row mt-4">
+            <div class="col-md-6 mb-4">
+                <div class="card bg-light text-dark h-100">
+                    <div class="card-body">
+                        <h3 class="card-title">Serviços Oferecidos</h3>
+                        <ul class="list-group">
+                            {% for servico in servicos %}
+                            <li class="list-group-item bg-dark text-white">{{ servico }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p class="card-text mt-3">Para alterar os serviços, edite a lista `SERVICOS_PADRAO` no arquivo `config.py`.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6 mb-4">
+                <div class="card bg-light text-dark h-100">
+                    <div class="card-body">
+                        <h3 class="card-title">Dias da Semana</h3>
+                        <ul class="list-group">
+                            {% for dia in dias_semana %}
+                            <li class="list-group-item bg-dark text-white">{{ dia }}</li>
+                            {% endfor %}
+                        </ul>
+                        <p class="card-text mt-3">Para alterar os dias da semana, edite a lista `DIAS_SEMANA` no arquivo `config.py`.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>

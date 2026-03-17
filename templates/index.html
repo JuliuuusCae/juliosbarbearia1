@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barbearia</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+    <header class="header">
+        <div class="header__inner">
+            <h1 class="header__logo">Barbearia</h1>
+            <nav class="header__nav">
+                <a href="{{ url_for('login') }}" class="header__admin-link">Admin</a>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="inner"></div>
+        </section>
+
+        <section class="content">
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <div class="flash-messages">
+                {% for category, message in messages %}
+                <div class="alert alert-{{ category }}" role="alert">
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <form method="POST" id="formAgendamento" class="appointment-form">
+                <h2>Agende seu Horário</h2>
+
+                <div class="form-group">
+                    <label for="nome">Nome:</label>
+                    <input type="text" id="nome" name="nome" required class="form-control">
+                </div>
+
+                <div class="form-group">
+                    <label for="telefone">Telefone:</label>
+                    <input type="tel" id="telefone" name="telefone" class="form-control" placeholder="(XX) XXXXX-XXXX">
+                </div>
+
+                <div class="form-group">
+                    <label for="servico">Serviço:</label>
+                    <select id="servico" name="servico" class="form-select">
+                        {% for s in servicos %}
+                        <option value="{{ s }}">{{ s }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="data">Data:</label>
+                    <input type="date" id="data" name="data" required class="form-control" value="{{ data_selecionada }}">
+                </div>
+
+                <div class="form-group">
+                    <label>Horários Disponíveis:</label>
+                    <div class="agenda-grid">
+                        {% for h in horarios %}
+                        <label class="slot {% if h in ocupados %}ocupado{% endif %}">
+                            <input type="radio" name="horario" value="{{ h }}" {% if h in ocupados %}disabled{% endif %} required>
+                            <span>{{ h }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary btn-agendar">Agendar horário</button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <!-- Modal de Confirmação -->
+    <div id="confirmModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <p>Deseja confirmar o agendamento?</p>
+            <div class="modal-actions">
+                <button id="confirmarSim" class="btn btn-success">Sim</button>
+                <button id="confirmarNao" class="btn btn-danger">Não</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>

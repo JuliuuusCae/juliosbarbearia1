@@ -1,0 +1,333 @@
+/* 
+   Barbearia - Style Refactored
+   Senior Developer Approach: Modular, Variables, Performance Optimized
+*/
+
+:root {
+    --bg-dark: #111;
+    --bg-card: #222;
+    --primary: #ff7a00;
+    --primary-hover: #ff6600;
+    --success: #28a745;
+    --success-hover: #1e7e34;
+    --text-white: #ffffff;
+    --text-muted: #aaaaaa;
+    --danger: #dc3545;
+    --transition-fast: 0.2s ease;
+    --transition-slow: 0.4s ease;
+    --border-radius: 8px;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: var(--bg-dark);
+    color: var(--text-white);
+    line-height: 1.6;
+    overflow-x: hidden;
+    opacity: 0;
+    transition: opacity var(--transition-slow);
+}
+
+body.fade-in {
+    opacity: 1;
+}
+
+body.fade-out {
+    opacity: 0;
+}
+
+/* Loader */
+#loader {
+    position: fixed;
+    inset: 0;
+    background: var(--bg-dark);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.logo-loader {
+    width: 150px;
+    animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+}
+
+/* Header & Navigation */
+.header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 80px;
+    background: rgba(17, 17, 17, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    z-index: 1000;
+    transform: translateY(-100%);
+    transition: transform var(--transition-slow);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header.show {
+    transform: translateY(0);
+}
+
+.header__inner {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.header__logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--primary);
+}
+
+.header__admin-link {
+    color: var(--text-white);
+    text-decoration: none;
+    font-size: 0.9rem;
+    padding: 8px 16px;
+    border: 1px solid var(--text-white);
+    border-radius: var(--border-radius);
+    transition: all var(--transition-fast);
+}
+
+.header__admin-link:hover {
+    background: var(--text-white);
+    color: var(--bg-dark);
+}
+
+/* Hero Section with Zoom Out Effect */
+.hero {
+    position: relative;
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.inner {
+    position: absolute;
+    inset: 0;
+    background-image: url('/static/logo.png'); /* Caminho corrigido para o ambiente */
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* O zoom out será controlado via JS injetando scale no transform */
+    will-change: transform;
+    transition: transform 0.1s ease-out;
+}
+
+/* Content Area */
+.content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 80px 20px;
+    animation: fadeUp 0.6s ease forwards;
+}
+
+@keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Form Elements */
+.appointment-form {
+    background: var(--bg-card);
+    padding: 40px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.form-group {
+    margin-bottom: 25px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: var(--text-muted);
+}
+
+input, select {
+    width: 100%;
+    padding: 14px;
+    background: #333;
+    border: 1px solid #444;
+    border-radius: var(--border-radius);
+    color: white;
+    font-size: 1rem;
+    transition: border-color var(--transition-fast);
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary);
+}
+
+/* Agenda Grid */
+.agenda-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.slot {
+    background: #333;
+    padding: 15px;
+    border-radius: var(--border-radius);
+    text-align: center;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    border: 2px solid transparent;
+}
+
+.slot:hover:not(.ocupado) {
+    background: #444;
+    border-color: var(--primary);
+}
+
+.slot input {
+    display: none;
+}
+
+.slot.ativo {
+    background: var(--primary);
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(255, 122, 0, 0.3);
+}
+
+.slot.ocupado {
+    background: #222;
+    color: #555;
+    cursor: not-allowed;
+    border: 1px dashed #444;
+}
+
+/* Buttons */
+.btn-agendar {
+    background: var(--primary);
+    color: white;
+    border: none;
+    padding: 16px 40px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    width: 100%;
+    margin-top: 20px;
+}
+
+.btn-agendar:hover {
+    background: var(--primary-hover);
+    transform: scale(1.02);
+    box-shadow: 0 8px 20px rgba(255, 122, 0, 0.4);
+}
+
+/* Modal */
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+}
+
+.modal-content {
+    background: var(--bg-card);
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+}
+
+.modal-content p {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+/* Flash Messages */
+.flash-messages {
+    margin-bottom: 20px;
+}
+
+.alert {
+    padding: 15px;
+    border-radius: var(--border-radius);
+    margin-bottom: 10px;
+}
+
+.alert-success { background: var(--success); color: white; }
+.alert-error, .alert-danger { background: var(--danger); color: white; }
+
+/* Admin Grid */
+.agenda-admin-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 8px;
+}
+
+.slot-admin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #333;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.slot-admin input {
+    width: auto;
+    margin-right: 5px;
+    margin-bottom: 0;
+}
+
+/* Responsiveness */
+@media (max-width: 600px) {
+    .agenda-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .appointment-form {
+        padding: 20px;
+    }
+}
