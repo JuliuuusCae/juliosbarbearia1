@@ -5,6 +5,9 @@ import urllib.parse
 from config import Config
 from database import get_db, close_db, init_app as init_db_app
 
+app = Flask(__name__)
+
+
 # Geração de horários padrão
 def gerar_horarios():
     horarios = []
