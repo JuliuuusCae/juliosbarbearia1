@@ -6,26 +6,6 @@ from config import Config
 from database import get_db, close_db, init_app as init_db_app
 
 app = Flask(__name__)
-
-
-# Geração de horários padrão
-def gerar_horarios():
-    horarios = []
-    hora = 7
-    minuto = 0
-    while True:
-        horarios.append(f"{hora:02d}:{minuto:02d}")
-        minuto += 30
-        if minuto == 60:
-            minuto = 0
-            hora += 1
-        if hora == 18 and minuto == 30:
-            break
-    return horarios
-
-HORARIOS_PADRAO = gerar_horarios()
-
-app = Flask(__name__)
 app.config.from_object(Config)
 init_db_app(app)
 
@@ -87,15 +67,47 @@ def index():
 
             return redirect(whatsapp_url)
 
-    cursor.execute("SELECT horario FROM horarios ORDER BY horario")
-    horarios_disponiveis = [h[0] for h in cursor.fetchall()]
+    # Determina o dia da semana para a data selecionada
+    data_obj = datetime.datetime.strptime(data_param, "%Y-%m-%d").date()
+    dia_semana_num = data_obj.weekday() # 0=Segunda, 6=Domingo
+    dia_semana_nome = Config.DIAS_SEMANA[dia_semana_num]
+
+    # Gera horários baseados na configuração HORARIOS_POR_DIA
+    horarios_base_dia = []
+    if dia_semana_nome in Config.HORARIOS_POR_DIA:
+        for inicio_str, fim_str in Config.HORARIOS_POR_DIA[dia_semana_nome]:
+            inicio_hora, inicio_min = map(int, inicio_str.split(":"))
+            fim_hora, fim_min = map(int, fim_str.split(":"))
+
+            current_time = datetime.datetime(1, 1, 1, inicio_hora, inicio_min)
+            end_time = datetime.datetime(1, 1, 1, fim_hora, fim_min)
+
+            while current_time < end_time:
+                horarios_base_dia.append(current_time.strftime("%H:%M"))
+                current_time += datetime.timedelta(minutes=30)
+
+    # Recupera horários configurados para o dia da semana específico no banco de dados
+    cursor.execute("SELECT horario FROM horarios WHERE dia_semana=? ORDER BY horario", (dia_semana_nome,))
+    horarios_configurados_db = [h[0] for h in cursor.fetchall()]
+
+    # Se houver horários configurados no DB para este dia, usa-os. Caso contrário, usa os horários base do dia.
+    if horarios_configurados_db:
+        horarios_disponiveis_para_exibir = [h for h in horarios_configurados_db if h in horarios_base_dia]
+    else:
+        horarios_disponiveis_para_exibir = horarios_base_dia
+
+    # Remove horários duplicados e ordena
+    horarios_disponiveis_para_exibir = sorted(list(set(horarios_disponiveis_para_exibir)))
 
     cursor.execute("SELECT horario FROM agendamentos WHERE data=?", (data_param,))
     horarios_ocupados = [h[0] for h in cursor.fetchall()]
 
+    # Filtra os horários disponíveis removendo os horários ocupados
+    horarios_finais_para_exibir = [h for h in horarios_disponiveis_para_exibir if h not in horarios_ocupados]
+
     return render_template(
         "index.html",
-        horarios=horarios_disponiveis,
+        horarios=horarios_finais_para_exibir,
         ocupados=horarios_ocupados,
         data_selecionada=data_param,
         servicos=Config.SERVICOS_PADRAO,
@@ -136,21 +148,40 @@ def admin():
     cursor = db.cursor()
 
     data_filtro = None
+    dia_selecionado = request.args.get("dia", "Segunda") # Dia padrão para exibir no admin
+
     if request.method == "POST":
         action = request.form.get("action")
         if action == "update_horarios":
-            cursor.execute("DELETE FROM horarios")
+            dia_para_atualizar = request.form.get("dia_semana")
+            cursor.execute("DELETE FROM horarios WHERE dia_semana=?", (dia_para_atualizar,))
             horarios_selecionados = request.form.getlist("horarios")
             for h in horarios_selecionados:
-                cursor.execute("INSERT INTO horarios(horario) VALUES (?)", (h,))
+                cursor.execute("INSERT INTO horarios(horario, dia_semana) VALUES (?, ?)", (h, dia_para_atualizar))
             db.commit()
-            flash("Horários atualizados com sucesso!", "success")
+            flash(f"Horários para {dia_para_atualizar} atualizados com sucesso!", "success")
+            dia_selecionado = dia_para_atualizar # Mantém o dia selecionado após salvar
         elif action == "filter_agendamentos":
             data_filtro = request.form.get("data_filtro")
 
-    cursor.execute("SELECT id, horario FROM horarios ORDER BY horario")
+    # Recupera horários configurados para o dia selecionado no admin
+    cursor.execute("SELECT id, horario FROM horarios WHERE dia_semana=? ORDER BY horario", (dia_selecionado,))
     horarios_configurados_com_id = cursor.fetchall()
     horarios_configurados = [h[1] for h in horarios_configurados_com_id]
+
+    # Gera horários base para o dia selecionado para exibir como opções
+    horarios_base_dia_admin = []
+    if dia_selecionado in Config.HORARIOS_POR_DIA:
+        for inicio_str, fim_str in Config.HORARIOS_POR_DIA[dia_selecionado]:
+            inicio_hora, inicio_min = map(int, inicio_str.split(":"))
+            fim_hora, fim_min = map(int, fim_str.split(":"))
+
+            current_time = datetime.datetime(1, 1, 1, inicio_hora, inicio_min)
+            end_time = datetime.datetime(1, 1, 1, fim_hora, fim_min)
+
+            while current_time < end_time:
+                horarios_base_dia_admin.append(current_time.strftime("%H:%M"))
+                current_time += datetime.timedelta(minutes=30)
 
     if data_filtro:
         cursor.execute("SELECT * FROM agendamentos WHERE data=? ORDER BY horario", (data_filtro,))
@@ -160,11 +191,12 @@ def admin():
 
     return render_template(
         "admin.html",
-        horarios_disponiveis=HORARIOS_PADRAO,
+        horarios_disponiveis=horarios_base_dia_admin,
         horarios_configurados=horarios_configurados,
         horarios_configurados_com_id=horarios_configurados_com_id,
         servicos=Config.SERVICOS_PADRAO,
         dias_semana=Config.DIAS_SEMANA,
+        dia_selecionado=dia_selecionado,
         agendamentos=agendamentos,
         data_filtro=data_filtro
     )

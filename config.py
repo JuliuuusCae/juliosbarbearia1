@@ -6,9 +6,22 @@ class Config:
     DIAS_SEMANA = [
         "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado", "Domingo"
     ]
+
+    # Nova estrutura para horários pré-programados por dia da semana
+    # Formato: {"Dia da Semana": [("HH:MM_inicio", "HH:MM_fim"), ...]}
+    # Exemplo: {"Segunda": [("09:00", "12:00"), ("14:00", "18:00")]}
+    HORARIOS_POR_DIA = {
+        "Segunda": [("18:00", "19:30")],
+        "Terça": [("18:00", "19:30")],
+        "Quarta": [("18:00", "19:30")],
+        "Quinta": [("18:00", "19:30")],
+        "Sexta": [("18:00", "19:30")], # Exemplo de mais de um bloco
+        "Sábado": [("07:00", "16:00")],
+        "Domingo": [] # Fechado ou sem horários pré-definidos
+    }
     SERVICOS_PADRAO = [
         "Corte", "Barba", "Corte + Barba", "Sobrancelha", "Acabamento"
     ]
-    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', '19992785209') # Em produção, use um nome de usuário mais seguro!
+    ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', '19992785209')
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "12345678") # Em produção, use senhas hashed!
     BARBER_WHATSAPP_NUMBER = os.environ.get("BARBER_WHATSAPP_NUMBER", "5519992785209") # Número do barbeiro com código do país e DDD

@@ -19,7 +19,7 @@ def close_db(e=None):
 def init_db():
     db = get_db()
     with db:
-        db.execute("""CREATE TABLE IF NOT EXISTS horarios(id INTEGER PRIMARY KEY AUTOINCREMENT, horario TEXT UNIQUE)""")
+        db.execute("""CREATE TABLE IF NOT EXISTS horarios(id INTEGER PRIMARY KEY AUTOINCREMENT, horario TEXT NOT NULL, dia_semana TEXT NOT NULL, UNIQUE(horario, dia_semana))""")
         db.execute("""CREATE TABLE IF NOT EXISTS agendamentos(id INTEGER PRIMARY KEY AUTOINCREMENT, nome TEXT, telefone TEXT, data TEXT, horario TEXT, servico TEXT)""")
 
         # Adicionar colunas faltantes se o esquema for antigo
@@ -33,13 +33,6 @@ def init_db():
             db.execute("ALTER TABLE agendamentos ADD COLUMN data TEXT")
         if 'servico' not in columns:
             db.execute("ALTER TABLE agendamentos ADD COLUMN servico TEXT")
-
-        # Inserir horários padrão se a tabela estiver vazia
-        cursor = db.execute("SELECT COUNT(*) FROM horarios")
-        if cursor.fetchone()[0] == 0:
-            from app import HORARIOS_PADRAO # Importar de app.py temporariamente para evitar circular import
-            for horario in HORARIOS_PADRAO:
-                db.execute("INSERT INTO horarios(horario) VALUES (?)", (horario,))
 
     db.commit()
 

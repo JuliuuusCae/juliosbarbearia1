@@ -42,8 +42,20 @@
                     <div class="card-body">
                         <h3 class="card-title">Gerenciar Horários de Atendimento</h3>
                         <p class="card-text">Selecione os horários em que a barbearia estará aberta para agendamentos.</p>
-                        <form method="POST" action="{{ url_for('admin') }}">
+
+                        <form method="GET" action="{{ url_for("admin") }}" class="mb-3">
+                            <label for="selectDia" class="form-label">Selecionar Dia da Semana:</label>
+                            <select id="selectDia" name="dia" class="form-select mb-3" onchange="this.form.submit()">
+                                {% for dia in dias_semana %}
+                                <option value="{{ dia }}" {% if dia == dia_selecionado %}selected{% endif %}>{{ dia }}</option>
+                                {% endfor %}
+                            </select>
+                        </form>
+
+                        <form method="POST" action="{{ url_for("admin") }}">
                             <input type="hidden" name="action" value="update_horarios">
+                            <input type="hidden" name="dia_semana" value="{{ dia_selecionado }}">
+                            <h4 class="mt-4">Horários para {{ dia_selecionado }}</h4>
                             <div class="agenda-admin-grid mb-3">
                                 {% for h in horarios_disponiveis %}
                                 <label class="slot-admin">
@@ -53,18 +65,18 @@
                                 </label>
                                 {% endfor %}
                             </div>
-                            <button type="submit" class="btn btn-warning w-100">Salvar Horários</button>
+                            <button type="submit" class="btn btn-warning w-100">Salvar Horários para {{ dia_selecionado }}</button>
                         </form>
 
                         <h4 class="mt-4">Horários Configurados (para exclusão)</h4>
                         <ul class="list-group">
                             {% for h_id, h_horario in horarios_configurados_com_id %}
-                            <li class="list-group-item d-flex justify-content-between align-items-center bg-dark text-white">
-                                {{ h_horario }}
-                                <a href="{{ url_for('excluir_horario', id_horario=h_id) }}" class="btn btn-danger btn-sm">Excluir</a>
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ h_horario }} ({{ dia_selecionado }})
+                                <a href="{{ url_for("excluir_horario", id_horario=h_id) }}" class="btn btn-danger btn-sm">Excluir</a>
                             </li>
                             {% else %}
-                            <li class="list-group-item bg-dark text-white">Nenhum horário configurado.</li>
+                            <li class="list-group-item">Nenhum horário configurado para {{ dia_selecionado }}.</li>
                             {% endfor %}
                         </ul>
                     </div>
