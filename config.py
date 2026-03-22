@@ -11,12 +11,12 @@ class Config:
     # Formato: {"Dia da Semana": [("HH:MM_inicio", "HH:MM_fim"), ...]}
     # Exemplo: {"Segunda": [("09:00", "12:00"), ("14:00", "18:00")]}
     HORARIOS_POR_DIA = {
-        "Segunda": [("18:00", "19:30")],
-        "Terça": [("18:00", "19:30")],
-        "Quarta": [("18:00", "19:30")],
-        "Quinta": [("18:00", "19:30")],
-        "Sexta": [("18:00", "19:30")], # Exemplo de mais de um bloco
-        "Sábado": [("07:00", "16:00")],
+        "Segunda": [("18:00", "20:00")],
+        "Terça": [("18:00", "20:00")],
+        "Quarta": [("18:00", "20:00")],
+        "Quinta": [("18:00", "20:00")],
+        "Sexta": [("18:00", "20:00")], # Exemplo de mais de um bloco
+        "Sábado": [("07:00", "16:30")],
         "Domingo": [] # Fechado ou sem horários pré-definidos
     }
     SERVICOS_PADRAO = [

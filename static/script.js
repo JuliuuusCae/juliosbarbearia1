@@ -136,9 +136,30 @@ document.addEventListener("DOMContentLoaded", () => {
         return { init };
     })();
 
+    // Módulo para gerenciar a seleção de data e recarregar a página
+    const DateSelector = (() => {
+        const dateInput = document.querySelector("input[type=\"date\"][name=\"data\"]");
+
+        const init = () => {
+            if (dateInput) {
+                dateInput.addEventListener("change", handleDateChange);
+            }
+        };
+
+        const handleDateChange = function() {
+            const newDate = this.value;
+            if (newDate) {
+                window.location.href = `${window.location.origin}${window.location.pathname}?data=${newDate}`;
+            }
+        };
+
+        return { init };
+    })();
+
     // Inicializa todos os módulos
     PageEffects.init();
     TimeSlotSelector.init();
     ConfirmationModal.init();
     ScrollEffects.init();
+    DateSelector.init();
 });

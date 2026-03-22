@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, redirect, session, url_for, f
 import datetime
 import os
 import urllib.parse
+import sqlite3
 from config import Config
 from database import get_db, close_db, init_app as init_db_app
 
@@ -161,6 +162,23 @@ def admin():
             db.commit()
             flash(f"Horários para {dia_para_atualizar} atualizados com sucesso!", "success")
             dia_selecionado = dia_para_atualizar # Mantém o dia selecionado após salvar
+        elif action == "add_horario":
+            dia_para_adicionar = request.form.get("dia_semana")
+            horario_novo = request.form.get("horario_personalizado")
+            if horario_novo:
+                try:
+                    # Valida o formato do horário
+                    datetime.datetime.strptime(horario_novo, "%H:%M")
+                    cursor.execute("INSERT INTO horarios(horario, dia_semana) VALUES (?, ?)", (horario_novo, dia_para_adicionar))
+                    db.commit()
+                    flash(f"Horário {horario_novo} adicionado para {dia_para_adicionar} com sucesso!", "success")
+                except sqlite3.IntegrityError:
+                    flash(f"O horário {horario_novo} já existe para {dia_para_adicionar}.", "error")
+                except ValueError:
+                    flash(f"Formato de horário inválido: {horario_novo}. Use HH:MM.", "error")
+            else:
+                flash("Nenhum horário foi fornecido para adicionar.", "error")
+            dia_selecionado = dia_para_adicionar # Mantém o dia selecionado após adicionar
         elif action == "filter_agendamentos":
             data_filtro = request.form.get("data_filtro")
 
@@ -229,4 +247,4 @@ def excluir_horario(id_horario):
 
 
 if __name__ == "__main__":
-    app.run()
+    app.run(debug=True, host='0.0.0.0', port=5000)
