@@ -347,3 +347,118 @@ input:focus, select:focus {
         padding: 20px;
     }
 }
+
+/* =====================
+   Site Footer
+   ===================== */
+.site-footer {
+    background: #0a0a0a;
+    border-top: 1px solid rgba(255, 122, 0, 0.2);
+    padding: 28px 20px;
+    margin-top: auto;
+}
+
+.site-footer__inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 32px;
+    flex-wrap: wrap;
+}
+
+.site-footer__label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: #555;
+    margin-bottom: 8px;
+}
+
+.site-footer__barber {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.site-footer__social-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    color: #ccc;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+}
+
+.site-footer__social-link:hover {
+    color: var(--primary);
+}
+
+.site-footer__divider {
+    width: 1px;
+    height: 40px;
+    background: rgba(255,255,255,0.1);
+}
+
+.site-footer__dev {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.site-footer__dev-links {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.site-footer__dev-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 6px;
+    transition: all var(--transition-fast);
+}
+
+.site-footer__dev-link--linkedin {
+    color: #0a66c2;
+    background: rgba(10, 102, 194, 0.08);
+    border: 1px solid rgba(10, 102, 194, 0.2);
+}
+
+.site-footer__dev-link--linkedin:hover {
+    background: rgba(10, 102, 194, 0.2);
+    color: #4a9eff;
+}
+
+.site-footer__dev-link--github {
+    color: #aaa;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+}
+
+.site-footer__dev-link--github:hover {
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    .site-footer__inner {
+        flex-direction: column;
+        gap: 20px;
+        text-align: center;
+    }
+
+    .site-footer__divider {
+        width: 60px;
+        height: 1px;
+    }
+}
