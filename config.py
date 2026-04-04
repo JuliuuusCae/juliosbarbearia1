@@ -20,7 +20,7 @@ class Config:
         "Domingo": [] # Fechado ou sem horários pré-definidos
     }
     SERVICOS_PADRAO = [
-        "Corte Degradê R$30,00", "Corte Social R$30,00", "Barba Completa R$20,00", "Barba Desenho R$15,00", "Corte + Barba R$45,00", "Sobrancelha R$5,00", "Corte + Barba + Sobrancelha R$50,00", "Pesinho R$10,00"
+        "Corte Degradê R$30,00", "Corte Social R$30,00", "Barba Completa R$20,00", "Barba Desenho R$15,00", "Corte + Barba R$45,00", "Sobrancelha R$5,00", "Corte + Barba + Sobrancelha R$50,00", "Pezinho R$10,00"
     ]
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', '19992785209')
     ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "12345678") # Em produção, use senhas hashed!
