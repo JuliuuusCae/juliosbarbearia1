@@ -1,8 +1,8 @@
 document.addEventListener("DOMContentLoaded", () => {
+
     // Módulo para gerenciar efeitos de página
     const PageEffects = (() => {
         const init = () => {
-            // Animação ao carregar a página
             document.body.classList.add("fade-in");
             setupPageTransition();
         };
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         document.body.classList.add("fade-out");
                         setTimeout(() => {
                             window.location.href = destino;
-                        }, 300); 
+                        }, 300);
                     }
                 });
             });
@@ -82,54 +82,64 @@ document.addEventListener("DOMContentLoaded", () => {
         return { init };
     })();
 
-    // Módulo para gerenciar efeitos de scroll (incluindo Zoom Out)
-    const ScrollEffects = (() => {
-        const header = document.querySelector(".header");
-        const innerLogo = document.querySelector(".inner");
+    // Módulo: Logo voa para o header ao rolar
+    const LogoFlyEffect = (() => {
         const heroSection = document.querySelector(".hero");
+        const innerLogo = document.querySelector(".inner");
+        const headerLogo = document.querySelector(".header__logo");
+        const header = document.querySelector(".header");
 
-        let ticking = false;
+        // Cria o logo-img no header (escondido inicialmente)
+        let headerLogoImg = null;
 
         const init = () => {
-            window.addEventListener("scroll", updateScrollEffects, { passive: true });
-            updateScrollEffects(); 
+            if (!heroSection || !innerLogo || !headerLogo) return;
+
+            // Insere imagem no lugar do texto do header
+            headerLogoImg = document.createElement("img");
+            headerLogoImg.src = "/static/logo.png";
+            headerLogoImg.className = "header__logo-img";
+            headerLogoImg.style.opacity = "0";
+            headerLogo.parentNode.insertBefore(headerLogoImg, headerLogo);
+
+            window.addEventListener("scroll", onScroll, { passive: true });
+            onScroll();
         };
 
-        const updateScrollEffects = () => {
-            if (!ticking) {
-                window.requestAnimationFrame(() => {
-                    const scrollY = window.scrollY;
+        const onScroll = () => {
+            const scrollY = window.scrollY;
+            const heroHeight = heroSection.offsetHeight;
 
-                    // 1. Efeito de mostrar/esconder header
-                    if (header) {
-                        if (scrollY > 100) {
-                            header.classList.add("show");
-                        } else {
-                            header.classList.remove("show");
-                        }
-                    }
+            // Progresso do scroll dentro da hero (0 a 1)
+            let progress = scrollY / heroHeight;
+            if (progress > 1) progress = 1;
 
-                    // 2. Efeito de ZOOM OUT no Scroll (Logo Hero)
-                    if (innerLogo && heroSection) {
-                        const heroHeight = heroSection.offsetHeight;
-                        // Calcula a escala: começa em 1.5 e diminui até 1 conforme rola
-                        // O zoom out acontece enquanto o usuário rola pela seção hero
-                        let scrollFraction = scrollY / heroHeight;
-                        if (scrollFraction > 1) scrollFraction = 1;
-                        
-                        // Escala vai de 1.5 (zoom in inicial) para 1.0 (zoom out no scroll)
-                        const scaleValue = 1.5 - (scrollFraction * 0.5);
-                        
-                        // Opacidade diminui conforme rola para sumir suavemente
-                        const opacityValue = 1 - scrollFraction;
+            // --- Hero logo: zoom out + fade out ---
+            const scale = 1.5 - progress * 0.5;
+            const heroOpacity = 1 - progress * 1.4; // some um pouco antes do fim
+            innerLogo.style.transform = `scale(${Math.max(scale, 1)})`;
+            innerLogo.style.opacity = Math.max(heroOpacity, 0);
 
-                        innerLogo.style.transform = `scale(${scaleValue})`;
-                        innerLogo.style.opacity = opacityValue;
-                    }
+            // --- Header: aparece a partir de 30% do scroll ---
+            if (scrollY > heroHeight * 0.3) {
+                header.classList.add("show");
+            } else {
+                header.classList.remove("show");
+            }
 
-                    ticking = false;
-                });
-                ticking = true;
+            // --- Troca texto "Barbearia" pelo logo no header ---
+            // A transição começa em 60% do scroll e termina em 90%
+            const fadeStart = 0.6;
+            const fadeEnd = 0.9;
+            let logoProgress = (progress - fadeStart) / (fadeEnd - fadeStart);
+            logoProgress = Math.min(Math.max(logoProgress, 0), 1);
+
+            // Texto some, imagem aparece
+            headerLogo.style.opacity = 1 - logoProgress;
+            headerLogo.style.transform = `scale(${1 - logoProgress * 0.2})`;
+            if (headerLogoImg) {
+                headerLogoImg.style.opacity = logoProgress;
+                headerLogoImg.style.transform = `scale(${0.8 + logoProgress * 0.2})`;
             }
         };
 
@@ -160,6 +170,6 @@ document.addEventListener("DOMContentLoaded", () => {
     PageEffects.init();
     TimeSlotSelector.init();
     ConfirmationModal.init();
-    ScrollEffects.init();
+    LogoFlyEffect.init();
     DateSelector.init();
 });

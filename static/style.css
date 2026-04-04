@@ -102,6 +102,16 @@ body.fade-out {
     font-size: 1.5rem;
     font-weight: bold;
     color: var(--primary);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform-origin: left center;
+}
+
+.header__logo-img {
+    height: 48px;
+    width: auto;
+    object-fit: contain;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+    transform-origin: left center;
 }
 
 .header__admin-link {
@@ -133,11 +143,10 @@ body.fade-out {
 .inner {
     position: absolute;
     inset: 0;
-    background-image: url('/static/logo.png'); /* Caminho corrigido para o ambiente */
+    background-image: url('/static/logo.png');
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
-    /* O zoom out será controlado via JS injetando scale no transform */
     will-change: transform;
     transition: transform 0.1s ease-out;
 }
@@ -325,7 +334,7 @@ input:focus, select:focus {
     align-items: center;
     justify-content: center;
     background: #333;
-    color: var(--text-white); /* Garante que o texto seja branco */
+    color: var(--text-white);
     padding: 10px;
     border-radius: 4px;
     cursor: pointer;
